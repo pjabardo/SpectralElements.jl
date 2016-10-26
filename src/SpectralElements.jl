@@ -5,4 +5,7 @@ module SpectralElements
 include("locnum.jl")
 include("basis1d.jl")
 include("mesh1d.jl")
+include("element1d.jl")
 end # module
+
+SEM = SpectralElements

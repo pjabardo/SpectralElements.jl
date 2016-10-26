@@ -29,5 +29,5 @@ nquad(b::Basis1d) = b.Q
 nmodes(b::Basis1d) = b.Q
 qnodes(b::Basis1d) = b.ξ
 qweights(b::Basis1d) = b.w
-diffmat(b::Basis1d) = b.D
+qdiffmat(b::Basis1d) = b.D
        
