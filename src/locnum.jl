@@ -112,7 +112,7 @@ bi2seq{T}(lnum::LocalNumSys, xb::AbstractVector{T}, xi::AbstractVector{T}) =
 
 
 "Extract boundary modes from modes numbered sequentially"
-function seq2b!{T}(lnum::LocalNumSys1d, x::AbstractVector{T}, y::AbstractVector{T})
+function seq2b!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T})
     for i = 1:lnum.nb
         y[i] = x[lnum.bndry[i]]
     end
@@ -120,7 +120,7 @@ function seq2b!{T}(lnum::LocalNumSys1d, x::AbstractVector{T}, y::AbstractVector{
 end
 
 "Extract boundary modes from modes numbered sequentially"
-seq2b{T}(lnum::LocalNumSys1d, x::AbstractVector{T}) = seq2b!(lnum, x, zeros(T, nbndry(lnum)))
+seq2b{T}(lnum::LocalNumSys, x::AbstractVector{T}) = seq2b!(lnum, x, zeros(T, nbndry(lnum)))
 
 
 "Extract interior modes from modes numbered sequentially"
@@ -141,3 +141,34 @@ seq2i{T}(lnum::LocalNumSys, x::AbstractVector{T}) = seq2i!(lnum, x, zeros(T, nin
 
 
 
+immutable LocalNumSys2d{N} <: LocalNumSys2d{4}
+
+    "Number of boundary modes"
+    nb::Int
+
+    "Number of interior modes"
+    ni::Int
+
+    "Number of vertex modes"
+    nv::Int
+
+    "Number of edges"
+    ne::Int
+    
+    "Indices of boundary modes"
+    bndry::Vector{Int}
+
+    "Indices of vertex modes"
+    vertex::Vector{Int}
+
+    "Indices of edge modes"
+    edge::NTuple{N,Vector{Int}}
+    
+    "Indices of interior modes" 
+    intr::Vector{Int}
+
+end
+
+
+
+function LocalNumSys2d{N
