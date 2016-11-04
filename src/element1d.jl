@@ -1,7 +1,6 @@
 abstract Element
 
 type Element1d{T<:Number} <: Element
-    id::Int
     a::T
     b::T
     x::Vector{T}
@@ -11,7 +10,7 @@ type Element1d{T<:Number} <: Element
 end
 
 
-function Element1d{T<:Number}(id, a::T, b::T, bas::Basis1d{T})
+function Element1d{T<:Number}(a::T, b::T, bas::Basis1d{T})
     w = qweights(bas)
     ξ = qnodes(bas)
     Q = nquad(bas)
@@ -28,7 +27,7 @@ function Element1d{T<:Number}(id, a::T, b::T, bas::Basis1d{T})
         Jw[i] = w[i] * d
     end
     
-    Element1d(id, a, b, x, Jw, dξdx, bas)
+    Element1d(a, b, x, Jw, dξdx, bas)
 end
 
 basis(el::Element1d) = el.bas

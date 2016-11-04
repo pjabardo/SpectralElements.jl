@@ -141,7 +141,7 @@ seq2i{T}(lnum::LocalNumSys, x::AbstractVector{T}) = seq2i!(lnum, x, zeros(T, nin
 
 
 
-immutable LocalNumSys2d{N} <: LocalNumSys2d{4}
+immutable LocalNumSys2d <: LocalNumSys
 
     "Number of boundary modes"
     nb::Int
@@ -162,7 +162,7 @@ immutable LocalNumSys2d{N} <: LocalNumSys2d{4}
     vertex::Vector{Int}
 
     "Indices of edge modes"
-    edge::NTuple{N,Vector{Int}}
+    edge::Vector{Vector{Int}}
     
     "Indices of interior modes" 
     intr::Vector{Int}
@@ -171,4 +171,54 @@ end
 
 
 
-function LocalNumSys2d{N
+function LocalNumSys2d(Q)
+    Q² = Q*Q
+    
+    idx = reshape(1:Q², Q, Q)
+    
+    nt = Q*Q
+    nv = 4
+    ne = 4
+    nb = nv + ne * (Q-2)
+    ni = nt - nb
+    println(ni)
+    bndry = zeros(Int, nb)
+    intr  = zeros(Int, ni)
+    vertex = [1, Q, Q², Q²-Q+1]
+    
+    edge = [zeros(Int,Q) for e=1:ne]
+    for i = 1:Q
+        edge[1][i] = idx[i,1]
+        edge[2][i] = idx[Q,i]
+        edge[3][i] = idx[i,Q]
+        edge[4][i] = idx[1,i]
+    end
+    cnt = 1
+    for i = 2:Q-1
+        for k = 2:Q-1
+            intr[cnt] = idx[k,i]
+            cnt += 1
+        end
+    end
+    
+    bndry[1:nv] = vertex
+    cnt = 5
+    for e = 1:ne
+        for i = 2:Q-1
+            bndry[cnt] = edge[e][i]
+            cnt += 1
+        end
+    end
+
+    
+    LocalNumSys2d(nb, ni, nv, ne, bndry, vertex, edge, intr)
+
+end
+
+
+nverts(n::LocalNumSys2d) = n.nv
+nedges(n::LocalNumSys2d) = n.ne
+nfaces(n::LocalNumSys2d) = 1
+
+vertidx(n::LocalNumSys2d) = n.vertex
+edgeidx(n::LocalNumSys2d, e::Integer) = n.edge[e]
