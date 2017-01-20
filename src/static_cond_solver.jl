@@ -317,7 +317,6 @@ function solve!{T<:Number}(solver::LUSC{T}, Fe::AbstractMatrix{T})
         ib = bndidx(lmap)
         ii = intidx(lmap)
 
-        Fie = solver.Fie[e]
         Fbe = solver.Fbe[e]
 
         for i = 1:nbe
@@ -328,10 +327,11 @@ function solve!{T<:Number}(solver::LUSC{T}, Fe::AbstractMatrix{T})
         end
 
         if nie > 0
+            Fie = solver.Fie[e]
             for i = 1:nie
                 Fie[i] = Fe[ii[i],e]
             end
-            gemv!('T', -one(T), solver.M[e], Fie, one(T), Fbe)
+            gemv!('C', -one(T), solver.M1[e], Fie, one(T), Fbe)
         end
         
         m = bmap(dof, e)
@@ -368,7 +368,7 @@ function solve!{T<:Number}(solver::LUSC{T}, Fe::AbstractMatrix{T})
         if nie > 0
             Fie = solver.Fie[e]
             A_ldiv_B!(solver.Aiifact[e], Fie)
-            gemv!('N', -one(T), solver.M[e], Fbe, one(T), Fie)
+            gemv!('N', -one(T), solver.M2[e], Fbe, one(T), Fie)
         end
         
         for i = 1:nbe
