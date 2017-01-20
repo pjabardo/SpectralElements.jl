@@ -23,7 +23,7 @@ end
 bbmatrix(solver::CholeskySC) = solver.Abb
 dofmap(solver::CholeskySC) = solver.dof
 
-function trf!(solver::CholeskySC)
+function trf!(solver::StaticCond)
     if nbslvmodes(solver.dof) > 0
         trf!(solver.Abb)
     end
@@ -216,21 +216,19 @@ function LUSC{T<:Number, Mat<:BBSolver, Dof <: DofMap}(dof::Dof, ::Type{Mat},
     Fie = Vector{Vector{T}}(nel)
     Fbe = Vector{Vector{T}}(nel)
 
-    Aiifact = Vector{Base.LinAlg.Cholesky{T,Array{T,2}}}(nel)
-    M = Vector{Array{T,2}}(nel)
+    Aiifact = Vector{Base.LinAlg.LU{T,Array{T,2}}}(nel)
+    M1 = Vector{Array{T,2}}(nel)
+    M2 = Vector{Array{T,2}}(nel)
 
     ub = zeros(T, nbslv)
 
     lft = Dict{Int,DirichiletLift}()
 
-    CholeskySC(dof, Abb, Aii, Aiifact, M, ub, Fie, Fbe, lft, false)
+    CholeskySC(dof, Abb, Aii, Aiifact, M1, M2,  ub, Fie, Fbe, lft, false)
     
 end
 
-#using Base.LinAlg.BLAS.gemm!
-#using Base.LinAlg.BLAS.gemv!
-#using Base.LinAlg.LAPACK.potrf!
-#using Base.LinAlg.LAPACK.potrs!
+
 
 function add_local_matrix{T<:Number}(solver::LUSC{T}, e::Integer,
                                      Ae::AbstractMatrix{T})
@@ -252,34 +250,35 @@ function add_local_matrix{T<:Number}(solver::LUSC{T}, e::Integer,
     if ni > 0
         ii = intidx(lmap)
         Aii = zeros(T, ni, ni)
-        Abi = zeros(T, nb, ni)
-        M = zeros(T, ni, nb)
+        M1 = zeros(T, ni, nb)
+        M2 = zeros(T, ni, nb)
         solver.Fie[e] = zeros(T, ni)
-        for i in 1:ni
-            for k in 1:nb
-                Abi[k,i] = Ae[ib[k], ii[i]]
-            end
-        end
-        
-        for i = 1:ni
-            for k = 1:ni 
-                Aii[k,i] = Ae[ ii[k], ii[i] ]
-            end
-        end
-        fact = cholfact!(Aii)
-        for k = 1:nb
-            for i = 1:ni
-                M[i,k] = Ae[ii[i],ib[k]]
-            end
-        end
-        
-        A_ldiv_B!(fact, M)
 
+        for i=1:ni,  k=1:nb
+            Abi[k,i] = Ae[ib[k], ii[i]]
+        end
+        
+        for i = 1:ni, k=1:ni
+            Aii[k,i] = Ae[ ii[k], ii[i] ]
+        end
+        for i=1:ni,  k=1:nb
+            M1[i,k] = Ae[ib[k], ii[i]] 
+        end
+        for i=1:ni,  k=1:nb
+            M2[i,k] = Ae[ii[i], ib[k]]
+        end
+        
+        fact = lufact!(Aii)
+        Ac_ldiv_B!(fact, M1)
+
+        gemm!('C', 'N', -one(T), M1, M2, one(T), Abb)
+
+        A_ldiv_B!(fact, M2)
+        
         solver.Aii[e] = Aii
         solver.Aiifact[e] = fact
-        solver.M[e] = M
-        
-        gemm!('N', 'N', -one(T), Abi, M, one(T), Abb)
+        solver.M1[e] = M1
+        solver.M2[e] = M2
 
     end
     
@@ -289,6 +288,7 @@ function add_local_matrix{T<:Number}(solver::LUSC{T}, e::Integer,
     
     assemble!(bbmatrix(solver), Abb, bmap(dof, e))
 end
+
 
 
 function solve!{T<:Number}(solver::LUSC{T}, Fe::AbstractMatrix{T})
