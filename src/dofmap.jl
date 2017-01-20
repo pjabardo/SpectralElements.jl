@@ -157,3 +157,34 @@ function global2local(dof::DofMap, xg::Array{Float64,1})
 end
 
 
+function bandwidth(dof::DofMap)
+
+    bm = bmap(dof)
+    nel = size(bm,2)
+    nbe = size(bm,1)
+    nb = nbmodes(dof)
+    nbslv = nbslvmodes(dof)
+    bw = 0
+    min_idx = 0
+    max_idx = 0
+    for e=1:nel
+        for i = 1:nbmodes
+            b = bm[i,e]
+            if b <= nbslv
+                min_idx = b
+                max_idx = b
+                break
+            end
+        end
+        for i=1:nbmodes
+            b = bm[i,e]
+            if b < nbslv
+                min_idx = min(b, min_idx)
+                max_idx = max(b, max_idx)
+            end
+            bw = max(bw, (max_idx-min_idx))
+        end
+    end
+    return bw
+end
+

@@ -554,3 +554,21 @@ function trs!(Ag::Union{BBMatrix1d,BBSymMatrix1d}, x)
     end
 
 end
+
+
+using BandedMatrices
+
+type BBBandedMatrix{T<:Number} <: BBSolver
+    nb::Int
+    nbslv::Int
+    A::BandedMatrix{T}
+    fact::BandedMatrices.BandedLU{T}
+    function BBBandedMatrix(dof::DofMap)
+
+        bw = bandwidth(bw)
+        nb = nbmodes(dof)
+        nbslv = nbslvmodes(dof)
+        
+        A = bzeros(T, nbslv, nbslv, bw, bw)
+    end        
+end
