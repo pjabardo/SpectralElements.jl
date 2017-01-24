@@ -556,19 +556,55 @@ function trs!(Ag::Union{BBMatrix1d,BBSymMatrix1d}, x)
 end
 
 
-using BandedMatrices
 
 type BBBandedMatrix{T<:Number} <: BBSolver
     nb::Int
     nbslv::Int
-    A::BandedMatrix{T}
-    fact::BandedMatrices.BandedLU{T}
+    bw::Int
+    A::Matrix{T}
+    ipiv::Vector{BLAS.BlasInt}
+    #fact::BandedMatrices.BandedLU{T}
     function BBBandedMatrix(dof::DofMap)
 
         bw = bandwidth(bw)
         nb = nbmodes(dof)
         nbslv = nbslvmodes(dof)
-        
-        A = bzeros(T, nbslv, nbslv, bw, bw)
+        nl = bw
+        nu = bw
+        A = zeros(T, 2*nl+nu+1, nbslv)
+        ipiv = zeros(BLAS.BlasInt,0)
+        new(nb, nbslv, bw, A, ipiv)
     end        
 end
+
+
+
+function assemble!{T<:Number}(Ag::BBBandedMatrix{T}, Ae, m)
+
+    nm = length(m)
+    bw = Ag.bw
+    n1 = Ag.nbslv+1
+    A = Ag.A
+    for i = 1:nm
+        ig = m[i]
+        if ig < n1
+            for k = 1:nm
+                kg = m[k]
+                if kg < n1
+                    A[bw+bw+1+kg-ig,ig] += Ae[k,i]
+                end
+            end
+        end
+    end
+end
+
+
+function trf!(Ag::BBMatrix)
+
+    A,Ag.ipiv = gbtrf!(Ag.bw, Ag.bw, Ag.nbslv, Ag.A)
+
+end
+
+trs!(Ag::BBMatrix, x) = gbtrs!('N', Ag.bw, Ag.bw, Ag.nbslv, Ag.A, Ag.ipiv, x)
+
+
