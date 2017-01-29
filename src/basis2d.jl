@@ -1,6 +1,6 @@
-using Jacobi
 
-type Basis1d{T<:Number}
+
+type Basis2d{T<:Number}
     "Number of nodes"
     Q::Int
 
@@ -14,28 +14,26 @@ type Basis1d{T<:Number}
     D::Array{T,2}
 
     "Local numbering system"
-    lnum::LocalNumSys1d
-    
+    lnum::LocalNumSys2d
 end
 
-function Basis1d{T<:Number}(Q, ::Type{T}=Float64)
+
+function Basis2d{T<:Number}(Q::Integer, ::Type{T}=FLoat64)
+
     ξ = zglj(Q, 0, 0, T)
     w = wglj(ξ)
     D = dglj(ξ)
-    Basis1d{T}(Q, ξ, w, D, LocalNumSys1d(Q))
+    Basis2d{T}(Q, ξ, w, D, LocalNumSys2d(Q))
 end
-
-nquad(b::Basis1d) = b.Q
-nmodes(b::Basis1d) = b.Q
-qnodes(b::Basis1d) = b.ξ
-qnodes(b::Basis1d, idx::Integer) = b.ξ[idx]
-qweights(b::Basis1d) = b.w
-qweights(b::Basis1d, idx::Integer) = b.w[idx]
-qdiffmat(b::Basis1d) = b.D
-
-lnum(b::Basis1d) = b.lnum
+               
 
 
+nquad(b::Basis2d) = b.Q
+nmodes(b::Basis2d) = b.Q*b.Q
+qnodes(b::Basis2d) = b.ξ
+qweights(b::Basis2d) = b.w
+qdiffmat(b::Basis2d) = b.D
+       
 function ∂ξ!{T<:Number}(b::Basis1d{T}, x::AbstractVector{T}, y::AbstractVector{T})
     A_mul_B!(y, qdiffmat(b), x)
 end

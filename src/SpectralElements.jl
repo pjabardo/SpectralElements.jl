@@ -11,9 +11,9 @@ end
 
 include("locnum.jl")
 include("basis1d.jl")
-include("element1d.jl")
-include("element2d.jl")
+#include("element1d.jl")
+#include("element2d.jl")
 
 end # module
 
-#SEM = SpectralElements
+SEM = SpectralElements
