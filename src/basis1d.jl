@@ -1,6 +1,7 @@
+using LinearAlgebra
 using Jacobi
 
-type Basis1d{T<:Number}
+struct Basis1d{T<:Number}
     "Number of nodes"
     Q::Int
 
@@ -18,7 +19,7 @@ type Basis1d{T<:Number}
     
 end
 
-function Basis1d{T<:Number}(Q, ::Type{T}=Float64)
+function Basis1d(Q, ::Type{T}=Float64) where {T<:Number}
     ξ = zglj(Q, 0, 0, T)
     w = wglj(ξ)
     D = dglj(ξ)
@@ -36,11 +37,11 @@ qdiffmat(b::Basis1d) = b.D
 lnum(b::Basis1d) = b.lnum
 
 
-function ∂ξ!{T<:Number}(b::Basis1d{T}, x::AbstractVector{T}, y::AbstractVector{T})
-    A_mul_B!(y, qdiffmat(b), x)
+function ∂ξ!(b::Basis1d{T}, x::AbstractVector{T}, y::AbstractVector{T}) where {T<:Number}
+    mul!(y, qdiffmat(b), x)
 end
-∂ξ{T<:Number}(b::Basis1d{T}, x::AbstractVector{T}) = ∂ξ!(b, x, similar(x))
+∂ξ(b::Basis1d{T}, x::AbstractVector{T}) where {T<:Number} = ∂ξ!(b, x, similar(x)) 
 
-integrate{T<:Number}(b::Basis1d{T}, x::AbstractVector{T}) dot(qweights(b), x)
+integrate(b::Basis1d{T}, x::AbstractVector{T}) where {T<:Number} =  dot(qweights(b), x)
 
         
