@@ -1,6 +1,6 @@
 
 
-type Element2d{T<:Number} <: Element
+struct Element2d{T<:Number} <: AbstractElement
     x::Array{T,2}
     y::Array{T,2}
     dξdx::Array{T,2}
@@ -17,7 +17,7 @@ type Element2d{T<:Number} <: Element
 end
 
 
-function Element2d{T<:Number}(bas::Basis1d{T}, lnum::LocalNumSys2d)
+function Element2d(bas::Basis1d{T}, lnum::LocalNumSys2d) where {T<:Number}
 
     Q = nquad(bas)
 
@@ -36,7 +36,7 @@ function Element2d{T<:Number}(bas::Basis1d{T}, lnum::LocalNumSys2d)
 
 end
 
-function Element2d{T<:Number}(bas::Basis1d{T}, lnum::LocalNumSys2d, vx, vy)
+function Element2d(bas::Basis1d{T}, lnum::LocalNumSys2d, vx, vy) where {T<:Number}
     el = Element2d{T}(bas, lnum)
     
 
