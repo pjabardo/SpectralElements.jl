@@ -1,0 +1,13 @@
+name = "SpectralElements"
+uuid = "b242502b-2d3d-4b95-a485-fd6f5acc758e"
+authors = ["Paulo Jabardo", "IPT"]
+version = "0.1.0"
+
+[compat]
+julia = "1.2"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
