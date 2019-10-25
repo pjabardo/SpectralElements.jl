@@ -1,5 +1,5 @@
 
-abstract LocalNumSys
+abstract type LocalNumSys end
 
 """
 # Stores local DOF numbering systems
@@ -15,7 +15,7 @@ defined, two local numbering systems are necessary:
  * Boundary/Interior numbering where boundary modes are numbered first and then interior modes.
 
 """
-immutable LocalNumSys1d <: LocalNumSys
+struct LocalNumSys1d <: LocalNumSys
 
     "Number of boundary modes"
     nb::Int
@@ -65,7 +65,7 @@ edgeidx(n::LocalNumSys1d, e::Integer) = n.edge
 
 
 "Convert vector from sequential numbering to boundary/interior"
-function seq2bi!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T})
+function seq2bi!(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T}) where {T<:Number}
     
     for i = 1:lnum.nb
         y[i] = x[lnum.bndry[i]]
@@ -77,10 +77,10 @@ function seq2bi!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T
 end
 
 "Convert vector from sequential numbering to boundary/interior"
-seq2bi{T}(lnum::LocalNumSys, x::AbstractVector{T}) = seq2bi!(lnum, x, zeros(T, nmodes(lnum)))
+seq2bi(lnum::LocalNumSys, x::AbstractVector{T}) where {T<:Number} = seq2bi!(lnum, x, zeros(T, nmodes(lnum)))
 
 "Convert vector from boundary/interior numbering to sequential numbering"
-function bi2seq!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T})
+function bi2seq!(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T}) where {T<:Number}
     for i = 1:lnum.nb
         y[lnum.bndry[i]] = x[i]
     end
@@ -91,12 +91,12 @@ function bi2seq!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T
 end
 
 "Convert vector from boundary/interior numbering to sequential numbering"
-bi2seq{T}(lnum::LocalNumSys, x::AbstractVector{T}) = bi2seq!(lnum, x, zeros(T, nmodes(lnum)))
+bi2seq(lnum::LocalNumSys, x::AbstractVector{T}) where {T<:Number} = bi2seq!(lnum, x, zeros(T, nmodes(lnum))) 
 
 
 "Convert vector from boundary/interior numbering to sequential numbering"
-function bi2seq!{T}(lnum::LocalNumSys, xb::AbstractVector{T}, xi::AbstractVector{T},
-                    y::AbstractVector{T})
+function bi2seq!(lnum::LocalNumSys, xb::AbstractVector{T}, xi::AbstractVector{T},
+                    y::AbstractVector{T}) where {T<:Number}
     for i = 1:lnum.nb
         y[lnum.bndry[i]] = xb[i]
     end
@@ -107,12 +107,12 @@ function bi2seq!{T}(lnum::LocalNumSys, xb::AbstractVector{T}, xi::AbstractVector
 end
 
 "Convert vector from boundary/interior numbering to sequential numbering"
-bi2seq{T}(lnum::LocalNumSys, xb::AbstractVector{T}, xi::AbstractVector{T}) =
+bi2seq(lnum::LocalNumSys, xb::AbstractVector{T}, xi::AbstractVector{T})  where {T<:Number} =
     bi2seq!(lnum, xb, xi, zeros(T, nmodes(lnum)))
 
 
 "Extract boundary modes from modes numbered sequentially"
-function seq2b!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T})
+function seq2b!(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T}) where {T<:Number}
     for i = 1:lnum.nb
         y[i] = x[lnum.bndry[i]]
     end
@@ -120,11 +120,11 @@ function seq2b!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T}
 end
 
 "Extract boundary modes from modes numbered sequentially"
-seq2b{T}(lnum::LocalNumSys, x::AbstractVector{T}) = seq2b!(lnum, x, zeros(T, nbndry(lnum)))
+seq2b(lnum::LocalNumSys, x::AbstractVector{T}) where {T<:Number} = seq2b!(lnum, x, zeros(T, nbndry(lnum)))
 
 
 "Extract interior modes from modes numbered sequentially"
-function seq2i!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T})
+function seq2i!(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T}) where {T<:Number}
     for i = 1:lnum.ni
         y[i] = x[lnum.intr[i]]
     end
@@ -132,7 +132,7 @@ function seq2i!{T}(lnum::LocalNumSys, x::AbstractVector{T}, y::AbstractVector{T}
 end
 
 "Extract interior modes from modes numbered sequentially"
-seq2i{T}(lnum::LocalNumSys, x::AbstractVector{T}) = seq2i!(lnum, x, zeros(T, ninterior(lnum)))
+seq2i(lnum::LocalNumSys, x::AbstractVector{T}) where {T<:Number} = seq2i!(lnum, x, zeros(T, ninterior(lnum)))
 
 
 
@@ -141,7 +141,7 @@ seq2i{T}(lnum::LocalNumSys, x::AbstractVector{T}) = seq2i!(lnum, x, zeros(T, nin
 
 
 
-immutable LocalNumSys2d <: LocalNumSys
+struct LocalNumSys2d <: LocalNumSys
 
     "Number of boundary modes"
     nb::Int
