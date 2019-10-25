@@ -1,6 +1,6 @@
 
 
-module Matrix
+#module Matrix
 
 "Abstract base class for linear system solvers"
 abstract type LinearSolver end
@@ -10,7 +10,8 @@ abstract type LinearSolver end
 abstract type StaticCond <: LinearSolver end
 
 
+include("bbmatrix.jl")
 
-include("sccholesky.jl")
+#include("sccholesky.jl")
 
-end
+#end

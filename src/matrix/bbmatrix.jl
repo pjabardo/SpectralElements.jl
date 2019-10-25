@@ -1,7 +1,7 @@
 "Abstract type that deals with global boundary-boundary matrices"
-abstract BBSolver
+abstract type BBSolver end
 
-type BBMatrix{T<:Number} <: BBSolver
+mutable struct BBMatrix{T<:Number} <: BBSolver
     nb::Int
     nbslv::Int
     A::Array{T,2}
@@ -13,7 +13,7 @@ type BBMatrix{T<:Number} <: BBSolver
     end
 end
 
-function assemble!{T<:Number}(Ag::BBMatrix{T}, Ae, m)
+function assemble!(Ag::BBMatrix{T}, Ae, m) where {T<:Number}
 
     nm = length(m)
     n1 = Ag.nbslv+1
