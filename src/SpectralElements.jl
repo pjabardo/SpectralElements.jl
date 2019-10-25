@@ -4,7 +4,7 @@ module SpectralElements
 
 module Mesh
 include("mesh1d.jl")
-#include("mesh2d.jl")
+include("mesh2d.jl")
 #include("nektar.jl")
 
 end

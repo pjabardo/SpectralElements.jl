@@ -1,7 +1,7 @@
-abstract AbstractCurve
+abstract type AbstractCurve end
 
 
-type Quad{T<:Number}
+struct Quad{T<:Real}
     id::Int
     x::Vector{T}
     y::Vector{T}
@@ -28,7 +28,7 @@ einvert(v) = edge_in_vertex[v]
 
 
 
-type mshBndry{T<:Number}
+struct mshBndry{T<:Real}
     tag::String
     elem::Int
     face::Int
@@ -36,12 +36,12 @@ type mshBndry{T<:Number}
     funs::Vector{String}
 end
 
-type OtherInfo{T<:Number}
+struct OtherInfo{T<:Real}
     name::String
     info::Vector{String}
 end
 
-type Mesh2d{T<:Number}
+struct Mesh2d{T<:Real}
     elems::Vector{Quad{T}}
     bcs::Vector{mshBndry{T}}
     other::Vector{OtherInfo{T}}
