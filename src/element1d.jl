@@ -1,6 +1,6 @@
-abstract Element
+abstract type AbstractElement end
 
-type Element1d{T<:Number} <: Element
+struct Element1d{T<:Number} <: AbstractElement
     a::T
     b::T
     x::Vector{T}
@@ -10,7 +10,7 @@ type Element1d{T<:Number} <: Element
 end
 
 
-function Element1d{T<:Number}(a::T, b::T, bas::Basis1d{T})
+function Element1d(a::T, b::T, bas::Basis1d{T}) where {T<:Number}
     w = qweights(bas)
     ξ = qnodes(bas)
     Q = nquad(bas)
@@ -48,7 +48,7 @@ function ∂x!(el::Element1d, u, du)
     dξ = el.dξdx
     for i = 1:Q
         for k = 1:Q
-            du[k] += D[i,k] * u[i] * dξ[i]
+            du[k] += D[k,i] * u[i] * dξ[i]
         end
     end
     return du
@@ -57,3 +57,15 @@ end
 ∂x(el::Element1d, u) = ∂x!(el, u, similar(u))
 
 
+function integrate(e::Element1d{T}, x::AbstractVector{T}) where {T<:Number}
+    I = zero(T)
+    
+    N = nquad(e)
+    Jw = e.Jw
+
+    for i in 1:N
+        I += Jw[i] * x[i]
+    end
+
+    return I
+end
