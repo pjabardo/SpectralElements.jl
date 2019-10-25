@@ -1,12 +1,13 @@
 
-abstract AbstractMesh
-abstract AbstractMesh1d <: AbstractMesh
+abstract type AbstractMesh end
+abstract type AbstractMesh1d <: AbstractMesh end
 
-typealias BCnames Vector{String}
+
+const BCnames = Vector{String}
 """
 Stores an ordered 1D mesh
 """
-type Mesh1d{T <: Real} <: AbstractMesh1d
+struct Mesh1d{T <: Real} <: AbstractMesh1d
     "Number of nodes"
     nb::Int
     "Number of elements"
@@ -19,7 +20,7 @@ type Mesh1d{T <: Real} <: AbstractMesh1d
 end
 
 
-function check_elem_order{T<:Real}(x::AbstractVector{T})
+function check_elem_order(x::AbstractVector{T}) where {T <: Real}
     n = length(x)
 
     for i = 2:n
@@ -46,7 +47,7 @@ and number of elements:
  * `nel`: Number of elements that the domain will be divided into
  * `bcs`: Vector with boundary condition tags
 """
-function Mesh1d{T<:Real}(x::AbstractVector{T}, bcs=[])
+function Mesh1d(x::AbstractVector{T}, bcs=[]) where {T<:Real}
     nb::Int = length(x)
     if nb < 2
         throw(DimensionMismatch("There should be at least 2 nodes in the 1d mesh"))
@@ -80,7 +81,7 @@ function Mesh1d{T<:Real}(x::AbstractVector{T}, bcs=[])
 end
 
 
-function Mesh1d{T<:Real}(a::T, b::T, nel::Int, bcs=[])
+function Mesh1d(a::T, b::T, nel::Int, bcs=[]) where {T<:Real}
 
     if a >= b
         throw(ArgumentError("Nodes should be sequential from smaller to larger values"))
@@ -88,7 +89,7 @@ function Mesh1d{T<:Real}(a::T, b::T, nel::Int, bcs=[])
     
     nb = nel + 1
 
-    x = linspace(a, b, nb)
+    x = range(a, b, length=nb)
 
     return Mesh1d(x, bcs)
     
@@ -97,7 +98,7 @@ end
 """
 Stores information about an element.
 """
-immutable mshElem1d{T<:Real}
+struct mshElem1d{T<:Real}
     id::Int
     a::T
     b::T
